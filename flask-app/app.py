@@ -28,7 +28,14 @@ def home():
 
 @app.route("/get-search-queries/<token>/<query>", methods = ["GET"])
 def get_search(token, query):
-	return jsonify(parser.obtainContents(query))
+
+    dec_user = jwt.decode(token, os.getenv("SECRET_KEY"), algorithms=["HS256"])
+    if redis_db.hget(f"user:{dec_user['username']}", "password") == None:
+        return jsonify({"status" : "unauthorized"})
+
+
+    contents = parser.obtainContents(query)
+    return jsonify(contents)
 
 @app.route("/get-bot-message/<token>/<query>", methods = ["GET"])
 def open_chatbot(token, query):

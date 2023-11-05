@@ -28,13 +28,13 @@ def obtainContents(query: str):
     soup=BeautifulSoup(response.content, "html.parser") # 'lxml')
 
     # store results in a dictionary
-    results = {}
+    results = []
     
     for item in soup.select('[data-lid]'):
         try:
-            add = []
+            add = {}
 
-            # title
+           # title
             add['title'] = item.select('h3')[0].get_text()
 
             # PDF url
@@ -50,6 +50,7 @@ def obtainContents(query: str):
 
         except Exception as e:
             # TODO: if we run into an exception, then notify the client
+            print(e)
             print("bruh")
 
     # return a dictionary 
