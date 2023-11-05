@@ -1,8 +1,16 @@
 from flask import Flask, redirect, render_template, request, session, url_for
+import jwt
+
 import sys
 sys.path.append('..')
+
 import util.parser as parser
 import redis
+
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -12,27 +20,42 @@ redis_db = redis.Redis(host='localhost', port=6379, db=0)
 def home():
 	return "Hello world"
 
-@app.route("/get_search_queries/<query>", methods = ["GET"])
-def get_search(query):
+@app.route("/get-search-queries/<token>/<query>", methods = ["GET"])
+def get_search(token, query):
 	return parser.obtainContents(query)
 
-@app.route("/<query>", methods = ["GET"])
-def open_chatbot(query):
+@app.route("get-bot-message/<token>/<query>", methods = ["GET"])
+def open_chatbot(token, query):
 	return "penis"
 
-@app.route("/login/<username>/<password>", methods=["POST","GET"])
-def login(username, password):
-	if request.method == 'GET':
-		#username = request.form['username']
-		#password = request.form['password']
+@app.route("/login", methods=["POST"])
+def login():
+	if request.method == 'POST':
+		username = request.form['username']
+		password = request.form['password']
 		
+    user = f"user:{username}"
+    
+    exp_pass = redis_db.hget(user_key, "password")
+    
+    if exp_pass != password:
+        return jsonify({"status" : "wrong-password"})
+
+    token = jwt.encode({
+        "username" : username,
+        "exp" : datetime.datetime.utcnow() + datetime.timedelta(minutes=100)
+    }, app.config["SECRET_KEY"])
+
 		# Check credentials
-		if verify_credentials(username, password):
-			session['user'] = username
-			return redirect(url_for('home'))
-		else:
-			return "Invalid username/password"
-	return render_template('login.html')
+    if verify_credentials(username, password):
+        session['user'] = username
+        token = jwt.encode({
+            'username': user['username'], 
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=100)
+        }, app.config['SECRET_KEY'])
+        return 
+    else:
+        return "Invalid username/password"
 
 def verify_credentials(username, password):
 	"""Check credentials against Redis user table"""
