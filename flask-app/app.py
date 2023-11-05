@@ -12,15 +12,13 @@ import datetime
 
 from dotenv import load_dotenv
 
+import redisUtil
 
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
-redis_db = redis.Redis(host='localhost', port=6379, db=0, charset="utf-8", decode_responses=True) 
-redis_db.hset('user:alice', 'password', 'pw123')
-redis_db.hset('user:bob', 'password', 'pw456')
 
 @app.route("/")
 def home():
@@ -30,8 +28,9 @@ def home():
 def get_search(token, query):
 
     dec_user = jwt.decode(token, os.getenv("SECRET_KEY"), algorithms=["HS256"])
-    if redis_db.hget(f"user:{dec_user['username']}", "password") == None:
-        return jsonify({"status" : "unauthorized"})
+
+    # if redisUtil.authenticate() redis_db.hget(f"user:{dec_user['username']}", "password") == None:
+    #    return jsonify({"status" : "unauthorized"})
 
 
     contents = parser.obtainContents(query)
@@ -47,11 +46,7 @@ def login():
     username = data['username']
     password = data['password']
 
-
-    user_key = f"user:{username}"
-    exp_pass = redis_db.hget(user_key, "password")
-
-    if exp_pass != password:
+    if not redisUtil.authenticate(username, password):
         return jsonify({"status" : "wrong-password"})
 
     token = jwt.encode({
