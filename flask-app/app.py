@@ -7,6 +7,9 @@ import os
 sys.path.append('..')
 
 import util.parser as parser
+
+from llm import LLM, getPDF
+
 import redis
 import datetime
 
@@ -16,9 +19,10 @@ import redisUtil
 
 load_dotenv()
 
+url = ""
+
 app = Flask(__name__)
 CORS(app)
-
 
 @app.route("/")
 def home():
@@ -32,9 +36,28 @@ def get_search(token, query):
     contents = parser.obtainContents(query)
     return jsonify(contents)
 
+@app.route("/post-url", methods = ["POST"])
+def post_url():
+    token = request.json['token']
+    if not redisUtil.decode(token, os.getenv("SECRET_KEY")):
+       return jsonify({"status" : "unauthorized"})
+ 
+    global url 
+    url = request.json['url'] 
+
+    global llm 
+    llm = LLM(url)
+
+    return jsonify({"status" : "success"})
+
 @app.route("/get-bot-message/<token>/<query>", methods = ["GET"])
 def open_chatbot(token, query):
-	return "penis"
+    if not redisUtil.decode(token, os.getenv("SECRET_KEY")):
+       return jsonify({"status" : "unauthorized"})
+
+    global llm
+    answer = llm.query(query)
+    return jsonify({"answer" : answer["result"]})
 
 @app.route("/login", methods=["POST"])
 def login():
