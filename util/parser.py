@@ -1,3 +1,6 @@
+# <Parser file
+# by sid 11/4
+
 from bs4 import BeautifulSoup
 import requests
 
@@ -24,7 +27,8 @@ def obtainContents(query: str):
     # soup query
     soup=BeautifulSoup(response.content, "html.parser") # 'lxml')
 
-    results = []
+    # store results in a dictionary
+    results = {}
     
     for item in soup.select('[data-lid]'):
         try:
@@ -33,11 +37,14 @@ def obtainContents(query: str):
             # title
             add['title'] = item.select('h3')[0].get_text()
 
-            # URL download
+            # PDF url
             add['url'] = item.select('a')[0]['href']
-            
-            # text content
-            add['content'] = item.select('.gs_rs')[0].get_text()
+
+            # TODO: citations
+            add['citations'] = 0
+
+            # TODO: year
+            add['date'] = 2016
             
             results.append(add)
 
