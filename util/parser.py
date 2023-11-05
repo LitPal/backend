@@ -48,9 +48,11 @@ def obtainContents(query: str):
 
 
             # authors
+            d = item.select('.gs_a')
             authors = []
-            for i in range(0, len(d[0].find_all('a'))):
-                authors.append( d[0].find_all('a')[i].get_text() )
+            if len(d) != 0:
+                for i in range(0, len(d[0].find_all('a'))):
+                    authors.append(d[0].find_all('a')[i].get_text() )
 
             add['authors'] = ', '.join(authors)
             
