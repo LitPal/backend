@@ -49,7 +49,8 @@ class LLM:
 
 
         # our stored LLM that we use for querying
-        self.llm1 = OpenAI(openai_api_key="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")
+        self.llm1 = OpenAI(openai_api_key="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")
+
         # optional: toggle this model as an alternative
         repo_id = "Salesforce/xgen-7b-8k-base" # "impira/layoutlm-document-qa"
         self.llm2 = HuggingFaceHub(
@@ -72,7 +73,7 @@ class LLM:
         texts = text_splitter.split_documents(documents)
 
         # select which embeddings we want to use
-        embeddings = OpenAIEmbeddings(openai_api_key="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") # "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")
+        embeddings = OpenAIEmbeddings(openai_api_key="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") # "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")
 
         # create the vectorestore to use as the index
         self.db = Chroma.from_documents(texts, embeddings)
