@@ -1,0 +1,5 @@
+poppler-utils
+bs4 import BeautifulSoup
+requests
+pytesseract
+PIL import Image
