@@ -26,12 +26,8 @@ def home():
 
 @app.route("/get-search-queries/<token>/<query>", methods = ["GET"])
 def get_search(token, query):
-
-    dec_user = jwt.decode(token, os.getenv("SECRET_KEY"), algorithms=["HS256"])
-
-    # if redisUtil.authenticate() redis_db.hget(f"user:{dec_user['username']}", "password") == None:
-    #    return jsonify({"status" : "unauthorized"})
-
+    if not redisUtil.decode(token, os.getenv("SECRET_KEY")):
+       return jsonify({"status" : "unauthorized"})
 
     contents = parser.obtainContents(query)
     return jsonify(contents)
