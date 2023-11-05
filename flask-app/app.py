@@ -29,13 +29,14 @@ def login():
 	return render_template('login.html')
 
 def verify_credentials(username, password):
-    """Check credentials against Redis user table"""
-    users = redis_db.lrange('user_table', 0, -1) 
-    for i in range(0, len(users), 2):
-        if users[i].decode('utf-8') == username and users[i+1].decode('utf-8') == password:
-            return True
-    
-    return False
+	"""Check credentials against Redis user table"""
+	user_key = f'user:{username}'
+	expected_pass = redis_db.hget(user_key, 'password')
+
+	if expected_pass == password:
+		return True
+	else: 
+		return False
 
 if __name__ == "__main__":
 	app.run(debug=True, port=4000)
