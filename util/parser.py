@@ -40,11 +40,19 @@ def obtainContents(query: str):
             # PDF url
             add['url'] = item.select('a')[0]['href']
 
-            # TODO: citations
-            add['citations'] = 0
+            # citations
+            add['citations'] = item.select('.gs_fl')[1].select('a')[2].get_text()
 
             # TODO: year
             add['date'] = 2016
+
+
+            # authors
+            authors = []
+            for i in range(0, len(d[0].find_all('a'))):
+                authors.append( d[0].find_all('a')[i].get_text() )
+
+            add['authors'] = ', '.join(authors)
             
             results.append(add)
 
